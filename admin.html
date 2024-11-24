@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="scripts/admin.js" defer></script>
+  <title>Panel de Administración</title>
+</head>
+<body>
+  <header>
+    <h1>Panel de Administración</h1>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <h2>Estadísticas Generales</h2>
+      <div id="stats">
+        <p>Ventas Totales: <span id="total-sales">0</span>€</p>
+        <p>Fotos Vendidas: <span id="total-photos">0</span></p>
+        <p>Fotógrafos Activos: <span id="active-photographers">0</span></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Gestión de Fotógrafos</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Ganancia (%)</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="photographer-list">
+          <!-- Rellenado dinámicamente -->
+        </tbody>
+      </table>
+    </section>
+    <section id="sales-overview">
+        <h2>Gestión de Ventas</h2>
+          <div id="earnings-summary">
+              <p>Total semanal: <span id="weekly-earnings">€0</span></p>
+                  <p>Total mensual: <span id="monthly-earnings">€0</span></p>
+                      <p>Total anual: <span id="annual-earnings">€0</span></p>
+                        </div>
+                        </section>
+
+                        <section id="photographer-management">
+                          <h2>Gestión de Fotógrafos</h2>
+                            <table>
+                                <thead>
+                                      <tr>
+                                              <th>Nombre</th>
+                                                      <th>Ganancias (%)</th>
+                                                              <th>Fotos Subidas</th>
+                                                                      <th>Éxito</th>
+                                                                              <th>Acciones</th>
+                                                                                    </tr>
+                                                                                        </thead>
+                                                                                            <tbody id="photographer-table">
+                                                                                                  <!-- Aquí se llenarán los datos dinámicamente -->
+                                                                                                      </tbody>
+                                                                                                        </table>
+                                                                                                        </section>
+                                                                                                        <section id="statistics">
+                                                                                                          <h2>Estadísticas Generales</h2>
+                                                                                                          <div id="stats-container"></div>
+                                                                                                        </section>
+                                                                                                        <button id="export-pdf">Exportar Reporte</button>
+                                                                                                      </main>
+
+  <footer>
+    <p>&copy; 2024 Panel de Administración</p>
+  </footer>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="scripts/main.js" defer></script>
+  <title>Stock Photography</title>
+</head>
+<body>
+  <header>
+    <h1>Stock Photography</h1>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="curator.html">Fotógrafos</a>
+      <a href="profile.html">Comprar</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+  </header>
+
+  <main>
+    <button id="dark-mode-toggle">🌙 Modo Oscuro</button>
+    <section id="filters">
+      <h2>Filtrar</h2>
+      <input type="text" id="search" placeholder="Buscar por etiquetas...">
+      <select id="category">
+        <option value="all">Todas las categorías</option>
+        <option value="paisajes">Paisajes</option>
+        <option value="retrato">Retrato</option>
+        <option value="urbano">Urbano</option>
+      </select>
+    </section>
+
+    <section id="featured">
+      <h2>Fotos Destacadas</h2>
+      <div id="photo-grid"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2024 Stock Photography</p>
+  </footer>
+</body>
+</html>
