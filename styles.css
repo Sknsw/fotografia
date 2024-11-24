@@ -160,3 +160,110 @@ body.dark-mode {
   background-color: #333333;
   color: #ffffff;
 }
+#auth-container {
+  width: 300px;
+  margin: 50px auto;
+  text-align: center;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-form input {
+  margin: 10px 0;
+  padding: 10px;
+  font-size: 16px;
+}
+
+button {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.hidden {
+  display: none;
+}
+
+.tabs button {
+  width: 50%;
+  padding: 10px;
+  border: none;
+  background: #f1f1f1;
+  cursor: pointer;
+}
+
+.tabs .active {
+  background-color: #007bff;
+  color: white;
+}
+
+#auth-message {
+  color: red;
+  margin-top: 20px;
+}
+.hidden {
+  display: none;
+}
+
+#reset-password-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+h1, h2 {
+  text-align: center;
+}
+
+table {
+  width: 80%;
+  margin: 20px auto;
+  border-collapse: collapse;
+}
+
+table, th, td {
+  border: 1px solid #ddd;
+}
+
+th, td {
+  padding: 10px;
+  text-align: center;
+}
+
+th {
+  background-color: #f4f4f4;
+}
+
+button {
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+#stats-container {
+  margin: 20px auto;
+  text-align: center;
+}
+
+#stats-container ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+#stats-container li {
+  margin: 10px 0;
+  font-size: 18px;
+}

@@ -3,9 +3,140 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script type="module" src="scripts/main.js" defer></script>
   <title>Stock Photography</title>
+  <style>
+    /* General Styles */
+    body {
+      margin: 0;
+      font-family: 'Archivo Black', sans-serif;
+      background-color: #000;
+      color: #fff;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px;
+      background-color: #121212;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 1.2rem;
+    }
+
+    main {
+      padding: 20px;
+    }
+
+    h1, h2, p {
+      margin: 0 0 15px 0;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+    }
+
+    /* Dark mode button */
+    #dark-mode-toggle {
+      background-color: #fff;
+      color: #000;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    /* Featured Artists Section */
+    #featured-artists {
+      margin-bottom: 40px;
+    }
+
+    .artists-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .artist-card {
+      background-color: #1a1a1a;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .artist-card img {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    .follow-btn {
+      background-color: #00c853;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      margin-top: 10px;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    /* Fresh Week Section */
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .photo-card {
+      position: relative;
+    }
+
+    .photo-card img {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    .photo-actions {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .icon-btn {
+      background-color: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #121212;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -20,20 +151,46 @@
 
   <main>
     <button id="dark-mode-toggle">🌙 Modo Oscuro</button>
-    <section id="filters">
-      <h2>Filtrar</h2>
-      <input type="text" id="search" placeholder="Buscar por etiquetas...">
-      <select id="category">
-        <option value="all">Todas las categorías</option>
-        <option value="paisajes">Paisajes</option>
-        <option value="retrato">Retrato</option>
-        <option value="urbano">Urbano</option>
-      </select>
+
+    <!-- Artistas Destacados -->
+    <section id="featured-artists">
+      <h2>Artistas Destacados</h2>
+      <p>Una selección cuidadosamente seleccionada de nuestros mejores talentos.</p>
+      <div class="artists-grid">
+        <div class="artist-card">
+          <img src="artist1.jpg" alt="Foto de artista">
+          <h3>Christine La</h3>
+          <button class="follow-btn">+ Seguir</button>
+        </div>
+        <div class="artist-card">
+          <img src="artist2.jpg" alt="Foto de artista">
+          <h3>John Doe</h3>
+          <button class="follow-btn">+ Seguir</button>
+        </div>
+      </div>
     </section>
 
-    <section id="featured">
-      <h2>Fotos Destacadas</h2>
-      <div id="photo-grid"></div>
+    <!-- Lo Más Fresco de la Semana -->
+    <section id="fresh-week">
+      <h2>Lo Más Fresco de la Semana</h2>
+      <div class="photo-grid">
+        <div class="photo-card">
+          <img src="photo1.jpg" alt="Foto reciente">
+          <div class="photo-actions">
+            <button class="icon-btn">❤️</button>
+            <button class="icon-btn">➕</button>
+            <button class="icon-btn">🔗</button>
+          </div>
+        </div>
+        <div class="photo-card">
+          <img src="photo2.jpg" alt="Foto reciente">
+          <div class="photo-actions">
+            <button class="icon-btn">❤️</button>
+            <button class="icon-btn">➕</button>
+            <button class="icon-btn">🔗</button>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 
