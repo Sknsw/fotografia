@@ -1,32 +1,245 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
-  <script type="module" src="scripts/admin.js" defer></script>
+  <meta name="description" content="Panel de administración para gestionar fotógrafos, ventas y estadísticas de rendimiento.">
+  <meta name="author" content="Administrador">
+  <meta name="keywords" content="Panel, Administración, Fotografía, Ventas, Estadísticas">
   <title>Panel de Administración</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Variables de color */
+    :root {
+      --primary-color: #0f0;
+      --secondary-color: #1a1a1a;
+      --background-color: #121212;
+      --text-color: #fff;
+      --highlight-color: rgba(0, 255, 0, 0.3);
+      --card-bg: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Estilos generales */
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background-color);
+      color: var(--text-color);
+    }
+
+    header {
+      background: var(--primary-color);
+      color: var(--secondary-color);
+      text-align: center;
+      padding: 1.5rem;
+      box-shadow: 0px 5px 15px rgba(0, 255, 0, 0.5);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+
+    nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    nav ul li a {
+      color: var(--secondary-color);
+      background: var(--text-color);
+      text-decoration: none;
+      font-weight: bold;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    nav ul li a:hover {
+      background: var(--primary-color);
+      color: var(--text-color);
+    }
+
+    main {
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    /* Tarjetas de métricas */
+    .card {
+      padding: 1rem;
+      border-radius: 8px;
+      background: var(--card-bg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0px 4px 10px var(--highlight-color);
+    }
+
+    .card h3 {
+      margin: 0;
+    }
+
+    .card i {
+      font-size: 2rem;
+      color: var(--primary-color);
+    }
+
+    /* Secciones */
+    section {
+      padding: 1.5rem;
+      border-radius: 8px;
+      background: var(--secondary-color);
+      box-shadow: 0px 4px 10px var(--highlight-color);
+    }
+
+    section h2 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Tablas */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border: 1px solid var(--primary-color);
+    }
+
+    th {
+      background: var(--primary-color);
+      color: var(--secondary-color);
+    }
+
+    /* Botones */
+    .button-primary {
+      background: var(--primary-color);
+      color: var(--secondary-color);
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .button-primary:hover {
+      background: var(--text-color);
+      color: var(--primary-color);
+    }
+
+    /* Gráficos */
+    canvas {
+      max-width: 100%;
+      margin: 2rem auto;
+    }
+
+    /* Diseño responsivo */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.5rem;
+      }
+
+      nav ul {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
 <body>
   <header>
     <h1>Panel de Administración</h1>
-    <nav>
-      <a href="index.html">Inicio</a>
-      <a href="admin.html">Admin</a>
+    <nav aria-label="Menú principal">
+      <ul>
+        <li><a href="#">Inicio</a></li>
+        <li><a href="#">Admin</a></li>
+      </ul>
     </nav>
   </header>
 
   <main>
-    <section>
-      <h2>Estadísticas Generales</h2>
-      <div id="stats">
-        <p>Ventas Totales: <span id="total-sales">0</span>€</p>
-        <p>Fotos Vendidas: <span id="total-photos">0</span></p>
-        <p>Fotógrafos Activos: <span id="active-photographers">0</span></p>
+    <!-- Tarjetas de métricas -->
+    <div class="card">
+      <div>
+        <h3>Semanal</h3>
+        <p id="weekly-earnings">€0</p>
       </div>
+      <i class="fas fa-chart-line"></i>
+    </div>
+    <div class="card">
+      <div>
+        <h3>Mensual</h3>
+        <p id="monthly-earnings">€0</p>
+      </div>
+      <i class="fas fa-calendar-alt"></i>
+    </div>
+    <div class="card">
+      <div>
+        <h3>Anual</h3>
+        <p id="annual-earnings">€0</p>
+      </div>
+      <i class="fas fa-coins"></i>
+    </div>
+
+    <!-- Sección de estadísticas generales -->
+    <section id="general-stats">
+      <h2>Estadísticas Generales</h2>
+      <canvas id="sales-chart"></canvas>
+      <canvas id="monthly-sales-chart"></canvas>
     </section>
 
-    <section>
+    <section id="activity-log">
+      <h2>Registro de Actividad</h2>
+      
+      <!-- Filtros -->
+      <form id="filter-form">
+        <label for="filter-curator">Curador:</label>
+        <input type="text" id="filter-curator" placeholder="Nombre del curador">
+        
+        <label for="filter-content-type">Tipo de contenido:</label>
+        <select id="filter-content-type">
+          <option value="">Todos</option>
+          <option value="photo">Foto</option>
+          <option value="video">Video</option>
+        </select>
+        
+        <label for="filter-date">Fecha:</label>
+        <input type="date" id="filter-date">
+        
+        <button type="button" id="apply-filters" class="button-primary">Aplicar Filtros</button>
+      </form>
+      
+      <!-- Tabla de resultados -->
+      <table>
+        <thead>
+          <tr>
+            <th>Curador</th>
+            <th>Acción</th>
+            <th>Tipo de Contenido</th>
+            <th>Contenido</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody id="activity-list"></tbody>
+      </table>
+    </section>
+
+    <!-- Sección de fotógrafos -->
+    <section id="photographer-management">
       <h2>Gestión de Fotógrafos</h2>
       <table>
         <thead>
@@ -38,46 +251,107 @@
           </tr>
         </thead>
         <tbody id="photographer-list">
-          <!-- Rellenado dinámicamente -->
+          <tr>
+            <td>Fotógrafo 1</td>
+            <td>email1@example.com</td>
+            <td><input type="number" min="0" max="100" value="30" class="profit-input"></td>
+            <td><button class="button-primary update-photographer">Actualizar</button></td>
+          </tr>
+          <tr>
+            <td>Fotógrafo 2</td>
+            <td>email2@example.com</td>
+            <td><input type="number" min="0" max="100" value="40" class="profit-input"></td>
+            <td><button class="button-primary update-photographer">Actualizar</button></td>
+          </tr>
         </tbody>
       </table>
     </section>
-    <section id="sales-overview">
-        <h2>Gestión de Ventas</h2>
-          <div id="earnings-summary">
-              <p>Total semanal: <span id="weekly-earnings">€0</span></p>
-                  <p>Total mensual: <span id="monthly-earnings">€0</span></p>
-                      <p>Total anual: <span id="annual-earnings">€0</span></p>
-                        </div>
-                        </section>
-
-                        <section id="photographer-management">
-                          <h2>Gestión de Fotógrafos</h2>
-                            <table>
-                                <thead>
-                                      <tr>
-                                              <th>Nombre</th>
-                                                      <th>Ganancias (%)</th>
-                                                              <th>Fotos Subidas</th>
-                                                                      <th>Éxito</th>
-                                                                              <th>Acciones</th>
-                                                                                    </tr>
-                                                                                        </thead>
-                                                                                            <tbody id="photographer-table">
-                                                                                                  <!-- Aquí se llenarán los datos dinámicamente -->
-                                                                                                      </tbody>
-                                                                                                        </table>
-                                                                                                        </section>
-                                                                                                        <section id="statistics">
-                                                                                                          <h2>Estadísticas Generales</h2>
-                                                                                                          <div id="stats-container"></div>
-                                                                                                        </section>
-                                                                                                        <button id="export-pdf">Exportar Reporte</button>
-                                                                                                      </main>
+  </main>
 
   <footer>
     <p>&copy; 2024 Panel de Administración</p>
   </footer>
+
+  <script>
+    // Ejemplo de datos iniciales
+    const weeklyEarnings = 5000;
+    const monthlyEarnings = 20000;
+    const annualEarnings = 240000;
+
+    document.getElementById('weekly-earnings').textContent = `€${weeklyEarnings}`;
+    document.getElementById('monthly-earnings').textContent = `€${monthlyEarnings}`;
+    document.getElementById('annual-earnings').textContent = `€${annualEarnings}`;
+
+    // Inicialización de gráficos
+    const ctx1 = document.getElementById('sales-chart').getContext('2d');
+    const ctx2 = document.getElementById('monthly-sales-chart').getContext('2d');
+
+    const salesChart = new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
+        datasets: [{
+          label: 'Ingresos Semanales (€)',
+          data: [500, 700, 800, 1000, 900, 1100, 1200],
+          borderColor: 'rgba(0, 255, 0, 1)',
+          backgroundColor: 'rgba(0, 255, 0, 0.2)',
+          fill: true,
+        }]
+      }
+    });
+
+    const monthlySalesChart = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
+        datasets: [{
+          label: 'Ingresos Mensuales (€)',data: [12000, 15000, 18000, 20000, 16000, 19000],
+          backgroundColor: 'rgba(0, 255, 0, 0.7)',
+          borderColor: 'rgba(0, 255, 0, 1)',
+          borderWidth: 1,
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    // Actualización de ganancias de fotógrafos
+    const updateButtons = document.querySelectorAll('.update-photographer');
+
+    updateButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const row = e.target.closest('tr');
+        const input = row.querySelector('.profit-input');
+        const profit = input.value;
+        console.log(`Actualizando ganancia para fotógrafo: ${profit}%`);
+        // Lógica para actualizar la ganancia del fotógrafo en la base de datos (simulado)
+        alert(`Ganancia del fotógrafo actualizada a ${profit}%`);
+      });
+    });
+
+    // Actualización de estadísticas en función de los datos dinámicos (simulados)
+    // Puedes agregar lógicas adicionales para hacer cálculos reales de ganancias y estadísticas
+    // Estos valores pueden ser dinámicos dependiendo de tus necesidades (de una base de datos, API, etc.)
+    function updateMetrics() {
+      // Lógica para actualizar los ingresos semanales, mensuales y anuales
+      // Se pueden conectar a una API para obtener datos reales
+      const updatedWeekly = 5500;  // Simulado
+      const updatedMonthly = 21000; // Simulado
+      const updatedAnnual = 250000; // Simulado
+
+      document.getElementById('weekly-earnings').textContent = `€${updatedWeekly}`;
+      document.getElementById('monthly-earnings').textContent = `€${updatedMonthly}`;
+      document.getElementById('annual-earnings').textContent = `€${updatedAnnual}`;
+    }
+
+    // Actualizar métricas cada 10 segundos (simulado)
+    setInterval(updateMetrics, 10000);
+  </script>
 </body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 </html>
