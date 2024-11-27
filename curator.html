@@ -1,4 +1,237 @@
-<section id="notifications">
-    <h2>Tareas Pendientes</h2>
-    <div id="notification-list"></div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil y Revisión de Archivos - Curadores</title>
+  <style>
+    /* Estilo general */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #0f0;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h2, h3 {
+      text-align: center;
+      color: #0f0;
+      text-shadow: 0 0 10px #0f0;
+    }
+
+    #profile-section, #review-section {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 2px solid #0f0;
+      border-radius: 8px;
+      background-color: rgba(0, 0, 0, 0.8);
+      box-shadow: 0 0 20px #0f0;
+    }
+
+    #profile-section {
+      position: relative;
+    }
+
+    .profile-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.9);
+      border: 2px solid #0f0;
+      border-radius: 8px;
+    }
+
+    .profile-info {
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .profile-info p {
+      margin: 5px 0;
+    }
+
+    .profile-actions button {
+      margin: 5px;
+      padding: 10px 15px;
+      border: 1px solid #0f0;
+      border-radius: 5px;
+      background-color: #000;
+      color: #0f0;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .profile-actions button:hover {
+      background-color: #0f0;
+      color: #000;
+      transform: scale(1.1);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.9);
+      border: 2px solid #0f0;
+      border-radius: 8px;
+      padding: 20px;
+      width: 80%;
+      max-width: 400px;
+      box-shadow: 0 0 20px #0f0;
+      z-index: 1000;
+    }
+
+    .modal h3 {
+      color: #0f0;
+      margin-bottom: 20px;
+    }
+
+    .modal input {
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid #0f0;
+      border-radius: 5px;
+      background-color: #000;
+      color: #0f0;
+    }
+
+    .modal button {
+      width: 100%;
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 999;
+    }
+
+    .visible {
+      display: block;
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
+</head>
+<body>
+  <!-- Sección del perfil -->
+  <section id="profile-section">
+    <div class="profile-card">
+      <h2>👤 Perfil del Curador</h2>
+      <div class="profile-info">
+        <p><strong>Nombre:</strong> <span id="curator-name">Cargando...</span></p>
+        <p><strong>Correo:</strong> <span id="curator-email">Cargando...</span></p>
+        <p><strong>Fecha de Registro:</strong> <span id="curator-registered">Cargando...</span></p>
+        <p><strong>Tareas Completadas:</strong> <span id="curator-tasks">Cargando...</span></p>
+      </div>
+      <div class="profile-actions">
+        <button onclick="openEditModal()">Editar Perfil</button>
+        <button onclick="logout()">Cerrar Sesión</button>
+      </div>
+    </div>
   </section>
+
+  <!-- Modal para editar perfil -->
+  <div class="overlay" id="modal-overlay"></div>
+  <div class="modal" id="edit-modal">
+    <h3>Editar Perfil</h3>
+    <input type="text" id="edit-name" placeholder="Nuevo nombre">
+    <input type="text" id="edit-role" placeholder="Nuevo rol">
+    <button onclick="saveProfileChanges()">Guardar Cambios</button>
+  </div>
+
+  <!-- Sección de revisión de archivos -->
+  <section id="review-section">
+    <h2>📋 Revisión de Archivos</h2>
+    <div id="file-list"></div>
+  </section>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "TU_DOMINIO.firebaseapp.com",
+      projectId: "TU_PROJECT_ID",
+      databaseURL: "TU_DATABASE_URL",
+      storageBucket: "TU_STORAGE_BUCKET.appspot.com",
+      messagingSenderId: "TU_MESSAGING_ID",
+      appId: "TU_APP_ID"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+
+    const curatorName = document.getElementById("curator-name");
+    const curatorEmail = document.getElementById("curator-email");
+    const curatorRole = document.getElementById("curator-role");
+    const curatorRegistered = document.getElementById("curator-registered");
+    const curatorTasks = document.getElementById("curator-tasks");
+
+    const modalOverlay = document.getElementById("modal-overlay");
+    const editModal = document.getElementById("edit-modal");
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        curatorEmail.textContent = user.email;
+        database.ref(`curators/${user.uid}`).once('value').then(snapshot => {
+          const data = snapshot.val();
+          curatorName.textContent = data.name || "No disponible";
+          curatorRole.textContent = data.role || "No asignado";
+          curatorRegistered.textContent = data.registered || "Desconocida";
+          curatorTasks.textContent = data.tasksCompleted || "0";
+        });
+      } else {
+        window.location.href = "/login.html";
+      }
+    });
+
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = "/login.html";
+      });
+    }
+
+    function openEditModal() {
+      modalOverlay.classList.add("visible");
+      editModal.classList.add("visible");
+    }
+
+    function closeEditModal() {
+      modalOverlay.classList.remove("visible");
+      editModal.classList.remove("visible");
+    }
+
+    function saveProfileChanges() {
+      const newName = document.getElementById("edit-name").value;
+      const newRole = document.getElementById("edit-role").value;
+
+      const user = auth.currentUser;
+      if (user) {
+        database.ref(`curators/${user.uid}`).update({
+          name: newName,
+          role: newRole
+        }).then(() => {
+          closeEditModal();
+          alert("Perfil actualizado");
+          location.reload();
+        });
+      }
+    }
+
+    modalOverlay.addEventListener("click", closeEditModal);
+  </script>
+</body>
+</html>
