@@ -197,7 +197,56 @@
     .gallery-item:hover .overlay {
       transform: translateY(0);
     }
+/* Search Section */
+.search-bar {
+      background: url('search-bg.jpg') no-repeat center center;
+      background-size: cover;
+      color: var(--text-color);
+      padding: 80px 20px;
+      text-align: center;
+    }
 
+    .search-bar h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .search-bar select, .search-bar input, .search-bar button {
+      margin: 10px 0;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .search-bar select, .search-bar input {
+      width: 30%;
+    }
+
+    .search-bar button {
+      background-color: var(--accent-color);
+      color: var(--text-color);
+      cursor: pointer;
+    }
+
+    /* Categories Section */
+    .categories {
+      display: flex;
+      justify-content: space-around;
+      padding: 20px;
+      background: #111;
+    }
+
+    .category {
+      text-align: center;
+      color: var(--text-color);
+    }
+
+    .category img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
     /* Footer */
     footer {
       background: rgba(18, 18, 18, 0.95);
@@ -243,6 +292,34 @@
 
   <section id="hero" class="hero" data-aos="fade-up">
     <h2>Descubre el Arte de la Fotografía</h2>
+  </section>
+  <!-- Search Section -->
+  <section class="search-bar">
+    <h2>Busca imágenes, videos y vectores</h2>
+    <select>
+      <option value="all">Todos</option>
+      <option value="images">Imágenes</option>
+      <option value="videos">Videos</option>
+      <option value="vectors">Vectores</option>
+    </select>
+    <input type="text" placeholder="Buscar...">
+    <button>Buscar</button>
+  </section>
+
+   <!-- Categories Section -->
+   <section class="categories">
+    <div class="category">
+      <img src="category1.jpg" alt="Naturaleza">
+      <p>Naturaleza</p>
+    </div>
+    <div class="category">
+      <img src="category2.jpg" alt="Ciudad">
+      <p>Ciudad</p>
+    </div>
+    <div class="category">
+      <img src="category3.jpg" alt="Retrato">
+      <p>Retrato</p>
+    </div>
   </section>
 
   <section id="photographers" data-aos="fade-right">
