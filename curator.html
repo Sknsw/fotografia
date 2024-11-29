@@ -30,10 +30,6 @@
       box-shadow: 0 0 20px #0f0;
     }
 
-    #profile-section {
-      position: relative;
-    }
-
     .profile-card {
       display: flex;
       flex-direction: column;
@@ -71,60 +67,20 @@
       transform: scale(1.1);
     }
 
-    /* Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: rgba(0, 0, 0, 0.9);
-      border: 2px solid #0f0;
-      border-radius: 8px;
-      padding: 20px;
-      width: 80%;
-      max-width: 400px;
-      box-shadow: 0 0 20px #0f0;
-      z-index: 1000;
+    #chart-container {
+      margin-top: 30px;
+      text-align: center;
     }
 
-    .modal h3 {
-      color: #0f0;
-      margin-bottom: 20px;
-    }
-
-    .modal input {
-      width: 100%;
-      margin-bottom: 15px;
-      padding: 10px;
-      border: 1px solid #0f0;
-      border-radius: 5px;
-      background-color: #000;
-      color: #0f0;
-    }
-
-    .modal button {
-      width: 100%;
-    }
-
-    .overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 999;
-    }
-
-    .visible {
-      display: block;
+    #statistics-chart {
+      max-width: 700px;
+      margin: 0 auto;
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <!-- Sección del perfil -->
@@ -136,27 +92,19 @@
         <p><strong>Correo:</strong> <span id="curator-email">Cargando...</span></p>
         <p><strong>Fecha de Registro:</strong> <span id="curator-registered">Cargando...</span></p>
         <p><strong>Tareas Completadas:</strong> <span id="curator-tasks">Cargando...</span></p>
+        <p><strong>Revisiones Realizadas:</strong> <span id="curator-reviews">Cargando...</span></p>
+        <p><strong>Aprobaciones Realizadas:</strong> <span id="curator-approvals">Cargando...</span></p>
       </div>
       <div class="profile-actions">
-        <button onclick="openEditModal()">Editar Perfil</button>
         <button onclick="logout()">Cerrar Sesión</button>
       </div>
     </div>
   </section>
 
-  <!-- Modal para editar perfil -->
-  <div class="overlay" id="modal-overlay"></div>
-  <div class="modal" id="edit-modal">
-    <h3>Editar Perfil</h3>
-    <input type="text" id="edit-name" placeholder="Nuevo nombre">
-    <input type="text" id="edit-role" placeholder="Nuevo rol">
-    <button onclick="saveProfileChanges()">Guardar Cambios</button>
-  </div>
-
-  <!-- Sección de revisión de archivos -->
-  <section id="review-section">
-    <h2>📋 Revisión de Archivos</h2>
-    <div id="file-list"></div>
+  <!-- Gráfica de estadísticas -->
+  <section id="chart-container">
+    <h3>📊 Estadísticas de Actividad</h3>
+    <canvas id="statistics-chart"></canvas>
   </section>
 
   <script>
@@ -176,12 +124,10 @@
 
     const curatorName = document.getElementById("curator-name");
     const curatorEmail = document.getElementById("curator-email");
-    const curatorRole = document.getElementById("curator-role");
     const curatorRegistered = document.getElementById("curator-registered");
     const curatorTasks = document.getElementById("curator-tasks");
-
-    const modalOverlay = document.getElementById("modal-overlay");
-    const editModal = document.getElementById("edit-modal");
+    const curatorReviews = document.getElementById("curator-reviews");
+    const curatorApprovals = document.getElementById("curator-approvals");
 
     auth.onAuthStateChanged((user) => {
       if (user) {
@@ -189,9 +135,14 @@
         database.ref(`curators/${user.uid}`).once('value').then(snapshot => {
           const data = snapshot.val();
           curatorName.textContent = data.name || "No disponible";
-          curatorRole.textContent = data.role || "No asignado";
           curatorRegistered.textContent = data.registered || "Desconocida";
           curatorTasks.textContent = data.tasksCompleted || "0";
+          const statistics = data.statistics || { reviews: 0, approvals: 0 };
+          curatorReviews.textContent = statistics.reviews || "0";
+          curatorApprovals.textContent = statistics.approvals || "0";
+
+          // Crear la gráfica
+          createChart(statistics.reviews, statistics.approvals);
         });
       } else {
         window.location.href = "/login.html";
@@ -204,34 +155,33 @@
       });
     }
 
-    function openEditModal() {
-      modalOverlay.classList.add("visible");
-      editModal.classList.add("visible");
+    function createChart(reviews, approvals) {
+      const ctx = document.getElementById('statistics-chart').getContext('2d');
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Revisiones', 'Aprobaciones'],
+          datasets: [{
+            label: 'Estadísticas de Actividad',
+            data: [reviews, approvals],
+            backgroundColor: ['#0f0', '#00f'],
+            borderColor: ['#0a0', '#005'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                color: '#0f0'
+              }
+            }
+          }
+        }
+      });
     }
-
-    function closeEditModal() {
-      modalOverlay.classList.remove("visible");
-      editModal.classList.remove("visible");
-    }
-
-    function saveProfileChanges() {
-      const newName = document.getElementById("edit-name").value;
-      const newRole = document.getElementById("edit-role").value;
-
-      const user = auth.currentUser;
-      if (user) {
-        database.ref(`curators/${user.uid}`).update({
-          name: newName,
-          role: newRole
-        }).then(() => {
-          closeEditModal();
-          alert("Perfil actualizado");
-          location.reload();
-        });
-      }
-    }
-
-    modalOverlay.addEventListener("click", closeEditModal);
   </script>
 </body>
-</html>
+</html> 

@@ -276,6 +276,58 @@
         </tbody>
       </table>
     </section>
+      <!-- Estadísticas por cliente -->
+      <section id="customer-stats" class="section">
+        <h2>Estadísticas por Cliente</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Total Compras</th>
+            </tr>
+          </thead>
+          <tbody id="customer-list"></tbody>
+        </table>
+      </section>
+  
+      <!-- Gestión de Colaboradores -->
+      <section id="collaborator-management" class="section">
+        <h2>Gestión de Colaboradores</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Portafolio</th>
+              <th>Fotos</th>
+              <th>Videos</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="collaborator-list">
+            <!-- Ejemplo dinámico -->
+          </tbody>
+        </table>
+      </section>
+  
+      <!-- Packs de Contenido -->
+      <section id="content-packs" class="section">
+        <h2>Packs de Contenido</h2>
+        <button class="button-primary" id="create-pack">Crear Nuevo Pack</button>
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Tipo</th>
+              <th>Precio (€)</th>
+              <th>Colaboradores</th>
+            </tr>
+          </thead>
+          <tbody id="pack-list">
+            <!-- Ejemplo dinámico -->
+          </tbody>
+        </table>
+      </section>
   </main>
 
   <footer>
@@ -362,6 +414,29 @@
 
     // Actualizar métricas cada 10 segundos (simulado)
     setInterval(updateMetrics, 10000);
+      // Código JavaScript para datos dinámicos
+      const collaborators = [
+      { name: "Colaborador 1", portfolio: "link", photos: 20, videos: 5 },
+      { name: "Colaborador 2", portfolio: "link", photos: 15, videos: 10 }
+    ];
+
+    function loadCollaborators() {
+      const tbody = document.getElementById('collaborator-list');
+      tbody.innerHTML = '';
+      collaborators.forEach(col => {
+        const row = `<tr>
+          <td>${col.name}</td>
+          <td><a href="${col.portfolio}">Ver Portafolio</a></td>
+          <td>${col.photos}</td>
+          <td>${col.videos}</td>
+          <td><button class="button-primary">Actualizar</button></td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    // Cargar datos iniciales
+    loadCollaborators();
   </script>
 </body>
 </html>
