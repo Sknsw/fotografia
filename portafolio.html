@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portafolio</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "TU_AUTH_DOMAIN",
+      projectId: "TU_PROJECT_ID",
+      storageBucket: "TU_STORAGE_BUCKET",
+      messagingSenderId: "TU_MESSAGING_SENDER_ID",
+      appId: "TU_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadPortfolio() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const photographerId = urlParams.get('id');
+
+      if (!photographerId) {
+        document.body.innerHTML = "<p>ID de fotógrafo no proporcionado.</p>";
+        return;
+      }
+
+      // Cargar datos del perfil
+      const profileDoc = await getDoc(doc(db, "profile", photographerId));
+      if (profileDoc.exists()) {
+        const data = profileDoc.data();
+        document.getElementById('header-view').style.backgroundImage = `url(${data.headerImageURL})`;
+        document.getElementById('profile-pic-view').src = data.profilePicURL;
+        document.getElementById('display-name').innerText = data.displayName;
+      } else {
+        document.body.innerHTML = "<p>Perfil no encontrado.</p>";
+        return;
+      }
+
+      // Cargar galería
+      const uploadsQuery = query(collection(db, "uploads"), orderBy("uploadedAt", "desc"));
+      const snapshot = await getDocs(uploadsQuery);
+      const gallery = document.getElementById('gallery');
+
+      snapshot.forEach((doc) => {
+        const upload = doc.data();
+        const item = document.createElement('div');
+        item.classList.add('gallery-item');
+        item.innerHTML = `
+          <img src="${upload.url}" alt="${upload.fileName}">
+          <p>${upload.fileName}</p>
+        `;
+        gallery.appendChild(item);
+      });
+    }
+
+    loadPortfolio();
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #1a1a1a;
+      color: #ffffff;
+    }
+    #header-view {
+      height: 250px;
+      background-size: cover;
+      background-position: center;
+      margin-bottom: 1rem;
+    }
+    #profile-pic-view {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin: 0 auto;
+      display: block;
+    }
+    #gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin: 2rem;
+    }
+    .gallery-item img {
+      width: 100%;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div id="header-view"></div>
+    <img id="profile-pic-view" alt="Foto de perfil">
+    <h1 id="display-name"></h1>
+  </header>
+  <main>
+    <section id="gallery"></section>
+  </main>
+</body>
+</html>

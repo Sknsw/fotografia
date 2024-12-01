@@ -3,9 +3,189 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
-  <script type="module" src="scripts/photographer.js" defer></script>
   <title>Panel del Fotógrafo</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "TU_AUTH_DOMAIN",
+      projectId: "TU_PROJECT_ID",
+      storageBucket: "TU_STORAGE_BUCKET",
+      messagingSenderId: "TU_MESSAGING_SENDER_ID",
+      appId: "TU_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    // Función para subir archivos
+    document.getElementById('upload-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const files = document.getElementById('file-input').files;
+      const uploadStatus = document.getElementById('upload-status');
+
+      if (files.length === 0) {
+        uploadStatus.innerText = "Selecciona al menos un archivo.";
+        return;
+      }
+
+      if (files.length > 10) {
+        uploadStatus.innerText = "Solo puedes subir un máximo de 10 archivos.";
+        return;
+      }
+
+      uploadStatus.innerText = "Subiendo...";
+      for (const file of files) {
+        const storageRef = ref(storage, `uploads/${file.name}`);
+        const snapshot = await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+
+        await addDoc(collection(db, "uploads"), {
+          fileName: file.name,
+          url: downloadURL,
+          uploadedAt: serverTimestamp(),
+        });
+      }
+
+      uploadStatus.innerText = "Archivos subidos con éxito.";
+      fetchUploadedMedia();
+    });
+
+    // Función para mostrar contenido subido
+    async function fetchUploadedMedia() {
+      const mediaList = document.getElementById('media-list');
+      const uploadsQuery = query(collection(db, "uploads"), orderBy("uploadedAt", "desc"));
+      const snapshot = await getDocs(uploadsQuery);
+
+      mediaList.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const mediaItem = document.createElement('div');
+        mediaItem.classList.add('media-item');
+        mediaItem.innerHTML = `
+          <p><strong>${data.fileName}</strong></p>
+          <a href="${data.url}" target="_blank">Ver archivo</a>
+        `;
+        mediaList.appendChild(mediaItem);
+      });
+    }
+
+    fetchUploadedMedia();
+
+    // Función para actualizar perfil
+    document.getElementById('profile-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const displayName = document.getElementById('display-name').value;
+      const profilePic = document.getElementById('profile-pic').files[0];
+      const headerImage = document.getElementById('header-image').files[0];
+
+      if (profilePic) {
+        const profilePicRef = ref(storage, `profile-pics/${profilePic.name}`);
+        await uploadBytes(profilePicRef, profilePic);
+        const profilePicURL = await getDownloadURL(profilePicRef);
+
+        await setDoc(doc(db, "profile", "userProfile"), { displayName, profilePicURL });
+      }
+
+      if (headerImage) {
+        const headerImageRef = ref(storage, `header-images/${headerImage.name}`);
+        await uploadBytes(headerImageRef, headerImage);
+        const headerImageURL = await getDownloadURL(headerImageRef);
+
+        await updateDoc(doc(db, "profile", "userProfile"), { headerImageURL });
+      }
+
+      alert("Perfil actualizado.");
+      loadProfile();
+    });
+
+    // Función para cargar el perfil
+    async function loadProfile() {
+      const profileDoc = await getDoc(doc(db, "profile", "userProfile"));
+      if (profileDoc.exists()) {
+        const data = profileDoc.data();
+        document.getElementById('display-name-view').innerText = data.displayName;
+        document.getElementById('profile-pic-view').src = data.profilePicURL;
+        document.getElementById('header-view').style.backgroundImage = `url(${data.headerImageURL})`;
+      }
+    }
+
+    loadProfile();
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #1a1a1a;
+      color: #ffffff;
+    }
+    header {
+      background: #222;
+      padding: 1rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+    }
+    nav a {
+      color: white;
+      margin: 0 1rem;
+      text-decoration: none;
+    }
+    main {
+      padding: 2rem;
+    }
+    #upload-section, #uploaded-media, #profile-section {
+      background: #333;
+      padding: 2rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    #media-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .media-item {
+      background: #444;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: #222;
+    }
+    #header-view {
+      height: 200px;
+      background-size: cover;
+      background-position: center;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+    }
+    #profile-pic-view {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 2px solid #00ffff;
+      margin-bottom: 1rem;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -17,10 +197,24 @@
   </header>
 
   <main>
+    <section id="profile-section">
+      <h2>Perfil del Fotógrafo</h2>
+      <div id="header-view"></div>
+      <img id="profile-pic-view" alt="Foto de perfil">
+      <h3 id="display-name-view"></h3>
+      <form id="profile-form">
+        <input type="text" id="display-name" placeholder="Nombre de usuario">
+        <input type="file" id="profile-pic" accept="image/*">
+        <input type="file" id="header-image" accept="image/*">
+        <button type="submit">Actualizar Perfil</button>
+      </form>
+    </section>
+
     <section id="upload-section">
       <h2>Subir Fotos/Videos</h2>
       <form id="upload-form">
         <input type="file" id="file-input" accept="image/*,video/*" multiple>
+        <p><small>Máximo 10 archivos por carga.</small></p>
         <button type="submit">Subir</button>
       </form>
       <p id="upload-status"></p>

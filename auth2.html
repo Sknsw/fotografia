@@ -4,40 +4,165 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro e Inicio de Sesión</title>
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      color: #333;
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #auth-container {
+      width: 400px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+    }
+    .tabs button {
+      flex: 1;
+      padding: 15px;
+      font-size: 16px;
+      text-align: center;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      transition: color 0.3s, border-bottom 0.3s;
+    }
+    .tabs button.active {
+      color: #007bff;
+      border-bottom: 3px solid #007bff;
+    }
+    .auth-form {
+      padding: 20px 30px;
+      display: none;
+    }
+    .auth-form.active {
+      display: block;
+    }
+    .auth-form h2 {
+      font-size: 22px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #444;
+    }
+    .auth-form input, .auth-form select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .auth-form button {
+      width: 100%;
+      padding: 12px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .auth-form button:hover {
+      background: #0056b3;
+    }
+    .register-options {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .register-options button {
+      padding: 10px 15px;
+      background-color: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+    }
+    .register-options button.active {
+      background-color: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+  </style>
 </head>
 <body>
   <div id="auth-container">
     <div class="tabs">
       <button id="register-tab" class="active">Registro</button>
-      <button id="login-tab">Iniciar Sesión</button>
+      <button id="login-tab">Inicio de Sesión</button>
     </div>
-    <form id="register-form" class="auth-form">
-      <h2>Regístrate</h2>
-      <input type="email" id="register-email" placeholder="Correo electrónico" required />
-      <input type="password" id="register-password" placeholder="Contraseña" required />
-      <button type="submit">Registrar</button>
+    <form id="register-form" class="auth-form active">
+      <h2>Crear una cuenta</h2>
+      <div class="register-options">
+        <button type="button" id="buyer-option" class="active">Comprador</button>
+        <button type="button" id="contributor-option">Contribuyente</button>
+      </div>
+      <input type="text" id="full-name" placeholder="Nombre completo" required>
+      <input type="email" id="register-email" placeholder="Correo electrónico" required>
+      <input type="password" id="register-password" placeholder="Contraseña" required>
+      <input type="tel" id="contact-number" placeholder="Número de contacto" required>
+      <select id="country">
+        <option value="">Selecciona tu país</option>
+        <option value="España">España</option>
+        <option value="México">México</option>
+        <option value="Argentina">Argentina</option>
+        <option value="Colombia">Colombia</option>
+      </select>
+      <button type="submit">Registrarse</button>
     </form>
-    <form id="login-form" class="auth-form hidden">
-      <h2>Inicia Sesión</h2>
-      <input type="email" id="login-email" placeholder="Correo electrónico" required />
-      <input type="password" id="login-password" placeholder="Contraseña" required />
-      <button type="submit">Entrar</button>
+    <form id="login-form" class="auth-form">
+      <h2>Iniciar Sesión</h2>
+      <input type="email" id="login-email" placeholder="Correo electrónico" required>
+      <input type="password" id="login-password" placeholder="Contraseña" required>
+      <button type="submit">Iniciar Sesión</button>
     </form>
-    <p id="auth-message"></p>
   </div>
-  <div id="reset-password-container" class="hidden">
-    <h2>Restablecer Contraseña</h2>
-    <input type="email" id="reset-email" placeholder="Introduce tu correo electrónico" required />
-    <button id="reset-password-btn">Enviar correo de restablecimiento</button>
-    <button id="back-to-login">Volver al inicio de sesión</button>
-    <p id="reset-message"></p>
-  </div>
-  
-  <p><a id="forgot-password" href="#">¿Olvidaste tu contraseña?</a></p>
+  <script>
+    // Tabs switching
+    const registerTab = document.getElementById('register-tab');
+    const loginTab = document.getElementById('login-tab');
+    const registerForm = document.getElementById('register-form');
+    const loginForm = document.getElementById('login-form');
 
-  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js"></script>
-  <script src="auth.js"></script>
+    registerTab.addEventListener('click', () => {
+      registerTab.classList.add('active');
+      loginTab.classList.remove('active');
+      registerForm.classList.add('active');
+      loginForm.classList.remove('active');
+    });
+
+    loginTab.addEventListener('click', () => {
+      loginTab.classList.add('active');
+      registerTab.classList.remove('active');
+      loginForm.classList.add('active');
+      registerForm.classList.remove('active');
+    });
+
+    // Registration options switching
+    const buyerOption = document.getElementById('buyer-option');
+    const contributorOption = document.getElementById('contributor-option');
+
+    buyerOption.addEventListener('click', () => {
+      buyerOption.classList.add('active');
+      contributorOption.classList.remove('active');
+    });
+
+    contributorOption.addEventListener('click', () => {
+      contributorOption.classList.add('active');
+      buyerOption.classList.remove('active');
+    });
+  </script>
 </body>
 </html>
