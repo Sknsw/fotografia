@@ -129,12 +129,53 @@
       <button type="submit">Iniciar Sesión</button>
     </form>
   </div>
+  <script type="module">
+    import { loginUser } from "./scripts/auth.js";
+  
+    const loginForm = document.getElementById("loginForm");
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+  
+      const role = await loginUser(email, password);
+  
+      if (role) {
+        alert(`Sesión iniciada como ${role}`);
+        // Redirige según el rol
+        if (role === "admin") {
+          window.location.href = "admin.html";
+        } else if (role === "curator") {
+          window.location.href = "curator.html";
+        } else if (role === "photographer") {
+          window.location.href = "photographer.html";
+        } else {
+          window.location.href = "index.html";
+        }
+      } else {
+        alert("Error al iniciar sesión.");
+      }
+    });
+  </script>
+  <script type="module">
+    import { registerUser } from "./scripts/auth.js";
+  
+    const form = document.getElementById("registerForm");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const role = document.getElementById("role").value;
+  
+      await registerUser(email, password, role);
+      alert("Usuario registrado correctamente.");
+    });
+  </script>
   <script>
     // Tabs switching
     const registerTab = document.getElementById('register-tab');
     const loginTab = document.getElementById('login-tab');
     const registerForm = document.getElementById('register-form');
-    const loginForm = document.getElementById('login-form');
 
     registerTab.addEventListener('click', () => {
       registerTab.classList.add('active');

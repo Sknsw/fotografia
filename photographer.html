@@ -229,5 +229,23 @@
   <footer>
     <p>&copy; 2024 Panel del Fotógrafo</p>
   </footer>
+  <script type="module">
+    import { auth, db } from "./scripts/firebase-config.js";
+    import { getDoc, doc } from "firebase/firestore";
+
+    // Verificar que el usuario sea administrador
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists() && userDoc.data().role !== "photographer") {
+          alert("Acceso denegado. Redirigiendo...");
+          window.location.href = "index.html";
+        }
+      } else {
+        alert("No estás autenticado. Redirigiendo...");
+        window.location.href = "auth2.html";
+      }
+    });
+  </script>
 </body>
 </html>

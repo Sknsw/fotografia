@@ -112,7 +112,24 @@
     <h3>📊 Estadísticas de Actividad</h3>
     <canvas id="statistics-chart"></canvas>
   </section>
+  <script type="module">
+    import { auth, db } from "./scripts/firebase-config.js";
+    import { getDoc, doc } from "firebase/firestore";
 
+    // Verificar que el usuario sea administrador
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists() && userDoc.data().role !== "curator") {
+          alert("Acceso denegado. Redirigiendo...");
+          window.location.href = "index.html";
+        }
+      } else {
+        alert("No estás autenticado. Redirigiendo...");
+        window.location.href = "auth2.html";
+      }
+    });
+  </script>
   <script>
     const firebaseConfig = {
       apiKey: "TU_API_KEY",
