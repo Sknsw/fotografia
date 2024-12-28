@@ -2,3 +2,449 @@
     <h3>Resumen de Ganancias</h3>
     <p>Ganancias totales: <span id="total-earnings">0€</span></p>
   </div>
+  // Verificar si el usuario está autenticado y cargar su perfil
+  onAuthStateChanged(auth, async (user) => {
+if (user) {
+  const userId = user.uid;
+  const userDocRef = doc(db, "users", userId);
+  const userDoc = await getDoc(userDocRef);
+  if (userDoc.exists()) {
+    const userData = userDoc.data();
+    // Verificar si el usuario tiene el rol 'distributor'
+    if (userData.role === "distributor") {
+      loadProfile(userId);  // Cargar perfil si es distribuidor
+    } else {
+      alert("No tienes acceso como distribuidor.");
+      window.location.href = "client.html"; // Redirigir si no es distribuidor
+    }
+  } else {
+    alert("No se encontró el usuario en la base de datos.");
+    window.location.href = "login.html";
+  }
+} else {
+  // Si no hay usuario autenticado, redirigir al login
+  window.location.href = "login.html";
+}
+});
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel del Fotógrafo</title>
+  <div>
+    <h2 id="display-name-view">Nombre del distribuidor</h2>
+    <img id="profile-pic-view" src="default-profile-pic.png" alt="Imagen de perfil">
+    <div id="header-view" style="background-image: url('default-header.jpg');">
+      <!-- Aquí se mostrará la imagen de cabecera -->
+    </div> 
+  </div>
+  
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-storage.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-auth.js";
+  
+    const firebaseConfig = {
+      apiKey: "AIzaSyB6QY7k3j0PRoWMxSNVk-2nI7tqReGvlc",
+      authDomain: "scortsprincess.firebaseapp.com",
+      projectId: "scortsprincess",
+      storageBucket: "scortsprincess.appspot.com",
+      messagingSenderId: "599517218900",
+      appId: "1:599517218900:web:c51b2ec00e8c7b1fcd45c1"
+    };
+  
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+    const auth = getAuth(app);
+  
+    // Función para cargar el perfil del distribuidor
+    async function loadProfile(userId) {
+      try {
+        // Intenta obtener el documento del usuario desde Firestore
+        const userDoc = await getDoc(doc(db, "users", userId));
+  
+        // Verifica si el documento existe
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+  
+          // Verifica que los campos existen antes de intentar acceder a ellos
+          const name = data.name || "Nombre no disponible";
+          const profileImageUrl = data.profileImageUrl || "default-profile-pic.png"; // Imagen por defecto
+          const headerImageURL = data.headerImageURL || "default-header.jpg"; // Imagen por defecto
+          const country = data.country || "País no disponible"; // Añadido: el país
+          const email = data.email || "Email no disponible"; // Añadido: el email
+
+          // Actualiza los elementos del DOM con los datos obtenidos
+          document.getElementById('display-name-view').innerText = name;
+          document.getElementById('profile-pic-view').src = profileImageUrl;
+          document.getElementById('header-view').style.backgroundImage = `url(${headerImageURL})`;
+          const emailElement = document.createElement('p');
+          emailElement.innerText = `Email: ${email}`;
+         document.getElementById('profile-section').appendChild(emailElement);
+
+        } else {
+          console.error("El documento de usuario no existe.");
+          alert("No se encontró el perfil del usuario.");
+        }
+      } catch (error) {
+        console.error("Error al cargar el perfil:", error);
+        alert("Ocurrió un error al cargar el perfil.");
+      }
+    }
+  
+  
+    // Función para actualizar perfil
+    document.getElementById('profile-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const displayName = document.getElementById('display-name').value;
+      const profilePic = document.getElementById('profile-pic').files[0];
+      const headerImage = document.getElementById('header-image').files[0];
+  
+      const userId = auth.currentUser.uid;
+  
+      if (profilePic) {
+        const profilePicRef = ref(storage, `profile-pics/${profilePic.name}`);
+        await uploadBytes(profilePicRef, profilePic);
+        const profilePicURL = await getDownloadURL(profilePicRef);
+  
+        await setDoc(doc(db, "users", userId), { displayName, profilePicURL }, { merge: true });
+      }
+  
+      if (headerImage) {
+        const headerImageRef = ref(storage, `header-images/${headerImage.name}`);
+        await uploadBytes(headerImageRef, headerImage);
+        const headerImageURL = await getDownloadURL(headerImageRef);
+  
+        await setDoc(doc(db, "users", userId), { headerImageURL }, { merge: true });
+      }
+  
+      alert("Perfil actualizado.");
+      loadProfile(userId);
+    });
+  </script>
+  
+  
+  <style>
+    /* Estilos personalizados similares a Alamy */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #1a1a1a;
+      color: #ffffff;
+    }
+    header {
+      background: #222;
+      padding: 1rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+    }
+    nav a {
+      color: white;
+      margin: 0 1rem;
+      text-decoration: none;
+    }
+    main {
+      padding: 2rem;
+    }
+    #upload-section, #uploaded-media, #profile-section {
+      background: #333;
+      padding: 2rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    #media-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .media-item {
+      background: #444;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: #222;
+    }
+    #header-view {
+      height: 200px;
+      background-size: cover;
+      background-position: center;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+    }
+    #profile-pic-view {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 2px solid #00ffff;
+      margin-bottom: 1rem;
+    }
+    /* Estilos generales para la sección del perfil */
+#profile-section {
+  background: #333;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* Estilos para el contenedor de la imagen de cabecera */
+#header-view {
+  height: 250px; /* Altura ajustable */
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  position: relative;
+  border: 3px solid #00ffff; /* Bordes resaltados para la imagen */
+}
+
+/* Estilos para la imagen de perfil */
+#profile-pic-view {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid #00ffff; /* Borde resaltado alrededor de la imagen */
+  margin-top: -60px; /* Desplaza la imagen hacia arriba */
+  margin-bottom: 1rem;
+  object-fit: cover;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); /* Sombra ligera alrededor de la imagen */
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Estilos para el nombre de usuario */
+#display-name-view {
+  font-size: 1.8rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  color: #00ffff; /* Resaltar nombre con color cyan */
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.7); /* Sombra de texto */
+}
+
+/* Formulario de actualización de perfil */
+#profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+#profile-form input,
+#profile-form button {
+  padding: 0.8rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  background: #444;
+  color: #fff;
+  outline: none;
+}
+
+#profile-form input[type="text"],
+#profile-form textarea {
+  width: 100%;
+}
+
+#profile-form input[type="file"] {
+  background: #555;
+}
+
+#profile-form button {
+  background: #00ffff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#profile-form button:hover {
+  background: #00b8b8;
+}
+
+/* Responsividad para pantallas pequeñas */
+@media (max-width: 768px) {
+  #header-view {
+    height: 200px;
+  }
+
+  #profile-pic-view {
+    width: 100px;
+    height: 100px;
+  }
+
+  #display-name-view {
+    font-size: 1.5rem;
+  }
+}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Panel del Fotógrafo</h1>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="photographer.html">Fotógrafo</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="profile-section">
+      <h2>Perfil del Fotógrafo</h2>
+      <div id="header-view"></div>
+      <img id="profile-pic-view" alt="Foto de perfil">
+      <h3 id="display-name-view"></h3>
+      <form id="profile-form">
+        <input type="text" id="display-name" placeholder="Nombre de usuario">
+        <input type="file" id="profile-pic" accept="image/*">
+        <input type="file" id="header-image" accept="image/*">
+        <button type="submit">Actualizar Perfil</button>
+      </form>
+    </section>
+
+    <section id="upload-section">
+      <h2>Subir Fotos/Videos</h2>
+      <form id="upload-form">
+        <input type="file" id="file-input" accept="image/*,video/*" multiple>
+        <p><small>Máximo 10 archivos por carga.</small></p>
+        <label><input type="radio" name="database-category" value="creative" checked> Creative</label>
+        <label><input type="radio" name="database-category" value="editorial"> Editorial</label>
+        <!-- Metadatos -->
+    <input type="text" id="title" placeholder="Título" required>
+    <textarea id="description" placeholder="Descripción" required></textarea>
+    <input type="text" id="keywords" placeholder="Palabras clave (separadas por comas)" required>
+        <button type="submit">Subir</button>
+      </form>
+      <p id="upload-status"></p>
+    </section>
+
+    <section id="uploaded-media">
+      <h2>Contenido Subido</h2>
+      <div id="media-list"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2024 Panel del Fotógrafo</p>
+  </footer>
+</body>
+</html>
+document.getElementById("register-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const email = document.getElementById("register-email").value;
+  const password = document.getElementById("register-password").value;
+  const name = document.getElementById("register-name").value;
+  const phone = document.getElementById("register-phone").value;
+  const country = document.getElementById("register-country").value;
+  const role = document.getElementById("buyer-option").classList.contains("active") ? "buyer" : "distributor";
+  const profileImageFile = document.getElementById("register-profile-image").files[0];
+  let profileImageUrl = "";
+
+  // Validación básica de los campos
+  if (!email || !password || !name || !phone || !country) {
+    alert("Por favor, complete todos los campos.");
+    return;
+  }
+
+  try {
+    // Crear el usuario
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+    // Subir la imagen de perfil si se ha seleccionado
+    if (profileImageFile) {
+      const storageRef = ref(storage, `profile_images/${userCredential.user.uid}`);
+    // Después de subir el archivo, usa getDownloadURL de esta manera:
+     await uploadBytes(storageRef, profileImageFile);
+     profileImageUrl = await getDownloadURL(storageRef);
+    }
+
+    // Guardar los datos del usuario en Firestore
+    await setDoc(doc(db, "users", userCredential.user.uid), {
+      name,
+      email,
+      phone,
+      country,
+      role,
+      profileImageUrl,
+      isAdmin: false // Asumimos que el usuario no es administrador al registrarse
+    });
+
+    // Crear el portafolio automáticamente si el rol es distribuidor
+    if (role === "distributor") {
+      const portfolioData = {
+        userId: userCredential.user.uid,       // ID del distribuidor
+        portfolioItems: [],                    // Aquí puedes añadir elementos de portafolio (por ejemplo, productos, fotos, etc.)
+        createdAt: new Date(),                 // Fecha de creación
+      };
+      await setDoc(doc(db, "portfolios", userCredential.user.uid), portfolioData);
+    }
+
+    alert("Registro exitoso");
+  } catch (error) {
+    if (error.code === "auth/email-already-in-use") {
+      alert("Este correo ya está registrado. Por favor, intenta iniciar sesión.");
+    } else {
+      alert("Error en el registro: " + error.message);
+    }
+  }
+});
+
+document.getElementById("login-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("login-email").value;
+  const password = document.getElementById("login-password").value;
+
+  try {
+    // Iniciar sesión con email y contraseña
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+// Obtener el documento del usuario desde Firestore
+const userDocRef = doc(db, "users", userCredential.user.uid);
+const userDoc = await getDoc(userDocRef);
+
+if (userDoc.exists()) {
+const userData = userDoc.data();
+
+// Verificar si el usuario es administrador
+if (userData.isAdmin === true) {
+// Si es administrador, redirigir al panel de administración
+window.location.href = "admin.html";  // Redirigir al panel de control del administrador
+} else {
+// Si no es administrador, redirigir a la página según su rol
+if (userData.role === "buyer") {
+  window.location.href = "client.html";
+} else if (userData.role === "distributor") {
+  window.location.href = `photographer.html?userId=${userCredential.user.uid}`;
+} else if (userData.role === "curator") {
+  window.location.href = "curator.html";  // Redirigir al panel del curator
+} else {
+  // Si el rol no es reconocido, puedes redirigir a una página por defecto o mostrar un error
+  alert("Rol no reconocido.");
+}
+}
+} else {
+alert("No se pudo obtener el perfil del usuario.");
+}
+} catch (error) {
+alert("Error en el inicio de sesión: " + error.message);
+}
+});

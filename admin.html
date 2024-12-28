@@ -3,89 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Panel de administración para gestionar fotógrafos, ventas y estadísticas de rendimiento.">
+  <meta name="description" content="Panel de administración completo para gestionar colaboradores, clientes, estadísticas y más.">
   <meta name="author" content="Administrador">
-  <meta name="keywords" content="Panel, Administración, Fotografía, Ventas, Estadísticas">
-  <title>Panel de Administración</title>
+  <meta name="keywords" content="Panel, Administración, Estadísticas, Colaboradores, Clientes">
+  <title>Panel de Administración Completo</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* Variables de color */
     :root {
       --primary-color: #0f0;
       --secondary-color: #1a1a1a;
       --background-color: #121212;
       --text-color: #fff;
-      --highlight-color: rgba(0, 255, 0, 0.3);
       --card-bg: rgba(255, 255, 255, 0.1);
+      --border-color: rgba(255, 255, 255, 0.3);
     }
 
-    /* Estilos generales */
     body {
       font-family: 'Arial', sans-serif;
       margin: 0;
       padding: 0;
       background-color: var(--background-color);
       color: var(--text-color);
+      line-height: 1.5;
     }
 
     header {
       background: var(--primary-color);
       color: var(--secondary-color);
       text-align: center;
-      padding: 1.5rem;
-      box-shadow: 0px 5px 15px rgba(0, 255, 0, 0.5);
+      padding: 1rem;
     }
 
     header h1 {
+      font-size: 1.5rem;
       margin: 0;
-      font-size: 1.8rem;
     }
 
     nav ul {
       list-style: none;
+      margin: 1rem 0 0;
       padding: 0;
-      margin: 1rem 0;
       display: flex;
       justify-content: center;
       gap: 1rem;
     }
 
-    nav ul li a {
+    nav a {
+      text-decoration: none;
       color: var(--secondary-color);
       background: var(--text-color);
-      text-decoration: none;
-      font-weight: bold;
       padding: 0.5rem 1rem;
       border-radius: 5px;
-      transition: background 0.3s ease, color 0.3s ease;
+      transition: background 0.3s;
     }
 
-    nav ul li a:hover {
+    nav a:hover {
       background: var(--primary-color);
       color: var(--text-color);
     }
 
     main {
-      padding: 2rem;
+      padding: 1rem;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
+      gap: 1.5rem;
     }
 
-    /* Tarjetas de métricas */
     .card {
-      padding: 1rem;
-      border-radius: 8px;
       background: var(--card-bg);
+      padding: 1rem;
+      border-radius: 5px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0px 4px 10px var(--highlight-color);
+      box-shadow: 0 4px 10px var(--border-color);
     }
 
     .card h3 {
       margin: 0;
+      font-size: 1rem;
+    }
+
+    .card p {
+      font-size: 1.2rem;
+      margin: 0.5rem 0 0;
     }
 
     .card i {
@@ -93,31 +94,29 @@
       color: var(--primary-color);
     }
 
-    /* Secciones */
     section {
-      padding: 1.5rem;
-      border-radius: 8px;
       background: var(--secondary-color);
-      box-shadow: 0px 4px 10px var(--highlight-color);
+      padding: 1rem;
+      border-radius: 5px;
+      box-shadow: 0 4px 10px var(--border-color);
     }
 
     section h2 {
       text-align: center;
-      font-size: 1.5rem;
       margin-bottom: 1rem;
     }
 
-    /* Tablas */
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 1rem;
+      font-size: 0.9rem;
     }
 
     th, td {
+      padding: 0.5rem;
       text-align: left;
-      padding: 10px;
-      border: 1px solid var(--primary-color);
+      border: 1px solid var(--border-color);
     }
 
     th {
@@ -125,16 +124,14 @@
       color: var(--secondary-color);
     }
 
-    /* Botones */
     .button-primary {
       background: var(--primary-color);
       color: var(--secondary-color);
       border: none;
-      padding: 10px 20px;
-      font-size: 1rem;
-      cursor: pointer;
+      padding: 0.5rem 1rem;
       border-radius: 5px;
-      transition: all 0.3s ease;
+      cursor: pointer;
+      transition: background 0.3s;
     }
 
     .button-primary:hover {
@@ -142,318 +139,217 @@
       color: var(--primary-color);
     }
 
-    /* Gráficos */
     canvas {
-      max-width: 100%;
-      margin: 2rem auto;
+      width: 100%;
+      max-width: 600px;
+      margin: 1rem auto;
+      display: block;
     }
 
-    /* Diseño responsivo */
-    @media (max-width: 768px) {
-      header h1 {
-        font-size: 1.5rem;
-      }
+    .chart-container {
+      display: grid;
+      gap: 1.5rem;
+    }
 
+    @media (max-width: 768px) {
       nav ul {
         flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      main {
+        gap: 1rem;
+      }
+
+      .card {
+        flex-direction: column;
+        text-align: center;
       }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Panel de Administración</h1>
-    <nav aria-label="Menú principal">
+    <h1>Panel de Administración Completo</h1>
+    <nav>
       <ul>
-        <li><a href="#">Inicio</a></li>
-        <li><a href="#">Admin</a></li>
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="#">Estadísticas</a></li>
+        <li><a href="#">Colaboradores</a></li>
+        <li><a href="#">Clientes</a></li>
+        <li><a href="#">Configuración</a></li>
       </ul>
     </nav>
   </header>
 
   <main>
-    <!-- Tarjetas de métricas -->
+    <!-- Tarjetas de Resumen -->
     <div class="card">
       <div>
-        <h3>Semanal</h3>
-        <p id="weekly-earnings">€0</p>
+        <h3>Ganancias Semanales</h3>
+        <p id="weekly-earnings">0€</p>
       </div>
       <i class="fas fa-chart-line"></i>
     </div>
     <div class="card">
       <div>
         <h3>Mensual</h3>
-        <p id="monthly-earnings">€0</p>
+        <p id="monthly-earnings">0€</p>
       </div>
-      <i class="fas fa-calendar-alt"></i>
+      <i class="fas fa-chart-line"></i>
     </div>
     <div class="card">
       <div>
         <h3>Anual</h3>
-        <p id="annual-earnings">€0</p>
+        <p id="annual-earnings">0€</p>
       </div>
-      <i class="fas fa-coins"></i>
+      <i class="fas fa-chart-line"></i>
     </div>
-    <div id="stats-container">
-      <h2>Estadísticas</h2>
-      <ul>
-        <li>Usuarios Totales: <span id="total-users">0</span></li>
-        <li>Fotógrafos: <span id="total-photographers">0</span></li>
-        <li>Curadores: <span id="total-curators">0</span></li>
-        <li>Compradores: <span id="total-buyers">0</span></li>
-        <li>Fotos Subidas: <span id="total-photos">0</span></li>
-      </ul>
+    <div class="card">
+      <div>
+        <h3>Clientes Activos</h3>
+        <p id="active-buyers">0</p>
+      </div>
+      <i class="fas fa-user-friends"></i>
+    </div>
+    
+    <div class="card">
+      <div>
+        <h3>Colaboradores Activos</h3>
+        <p id="active-collaborators">0</p>
+      </div>
+      <i class="fas fa-users"></i>
     </div>
 
-    <!-- Sección de estadísticas generales -->
-    <section id="general-stats">
-      <h2>Estadísticas Generales</h2>
-      <canvas id="sales-chart"></canvas>
-      <canvas id="monthly-sales-chart"></canvas>
-    </section>
-
-    <section id="activity-log">
-      <h2>Registro de Actividad</h2>
-      
-      <!-- Filtros -->
-      <form id="filter-form">
-        <label for="filter-curator">Curador:</label>
-        <input type="text" id="filter-curator" placeholder="Nombre del curador">
-        
-        <label for="filter-content-type">Tipo de contenido:</label>
-        <select id="filter-content-type">
-          <option value="">Todos</option>
-          <option value="photo">Foto</option>
-          <option value="video">Video</option>
-        </select>
-        
-        <label for="filter-date">Fecha:</label>
-        <input type="date" id="filter-date">
-        
-        <button type="button" id="apply-filters" class="button-primary">Aplicar Filtros</button>
-      </form>
-      
-      <!-- Tabla de resultados -->
+    <!-- Sección de Gráficos -->
+    <section>
+      <h2>Gestión de Colaboradores</h2>
       <table>
         <thead>
           <tr>
-            <th>Curador</th>
-            <th>Acción</th>
-            <th>Tipo de Contenido</th>
-            <th>Contenido</th>
-            <th>Fecha</th>
+            <th>Nombre</th>
+            <th>Portafolio</th>
+            <th>Fotos</th>
+            <th>Videos</th>
+            <th>Acciones</th>
           </tr>
         </thead>
-        <tbody id="activity-list"></tbody>
+        <tbody id="distributors">
+          <!-- Datos dinámicos -->
+        </tbody>
       </table>
     </section>
-
-    <!-- Sección de fotógrafos -->
-    <section id="photographer-management">
-      <h2>Gestión de Fotógrafos</h2>
+    
+    <section>
+      <h2>Gestión de Clientes</h2>
       <table>
         <thead>
           <tr>
             <th>Nombre</th>
             <th>Email</th>
-            <th>Ganancia (%)</th>
+            <th>Teléfono</th>
             <th>Acciones</th>
           </tr>
         </thead>
-        <tbody id="photographer-list">
-          <tr>
-            <td>Fotógrafo 1</td>
-            <td>email1@example.com</td>
-            <td><input type="number" min="0" max="100" value="30" class="profit-input"></td>
-            <td><button class="button-primary update-photographer">Actualizar</button></td>
-          </tr>
-          <tr>
-            <td>Fotógrafo 2</td>
-            <td>email2@example.com</td>
-            <td><input type="number" min="0" max="100" value="40" class="profit-input"></td>
-            <td><button class="button-primary update-photographer">Actualizar</button></td>
-          </tr>
+        <tbody id="buyers">
+          <!-- Datos dinámicos -->
         </tbody>
       </table>
     </section>
-      <!-- Estadísticas por cliente -->
-      <section id="customer-stats" class="section">
-        <h2>Estadísticas por Cliente</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Total Compras</th>
-            </tr>
-          </thead>
-          <tbody id="customer-list"></tbody>
-        </table>
-      </section>
-  
-      <!-- Gestión de Colaboradores -->
-      <section id="collaborator-management" class="section">
-        <h2>Gestión de Colaboradores</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Portafolio</th>
-              <th>Fotos</th>
-              <th>Videos</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="collaborator-list">
-            <!-- Ejemplo dinámico -->
-          </tbody>
-        </table>
-      </section>
-  
-      <!-- Packs de Contenido -->
-      <section id="content-packs" class="section">
-        <h2>Packs de Contenido</h2>
-        <button class="button-primary" id="create-pack">Crear Nuevo Pack</button>
-        <table>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Tipo</th>
-              <th>Precio (€)</th>
-              <th>Colaboradores</th>
-            </tr>
-          </thead>
-          <tbody id="pack-list">
-            <!-- Ejemplo dinámico -->
-          </tbody>
-        </table>
-      </section>
   </main>
 
   <footer>
     <p>&copy; 2024 Panel de Administración</p>
   </footer>
-  <script type="module">
-    import { auth, db } from "./scripts/firebase-config.js";
-    import { getDoc, doc } from "firebase/firestore";
 
-    // Verificar que el usuario sea administrador
-    auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists() && userDoc.data().role !== "admin") {
-          alert("Acceso denegado. Redirigiendo...");
-          window.location.href = "index.html";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
+
+  // Configuración de Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyB6QY7k3j0PRoWMxSNVk-2nI7sTqReGvlc",
+    authDomain: "scortsprincess.firebaseapp.com",
+    projectId: "scortsprincess",
+    storageBucket: "scortsprincess.appspot.com",
+    messagingSenderId: "599517218900",
+    appId: "1:599517218900:web:c51b2ec00e8c7b1fcd45c1"
+  };
+  
+  // Inicializa Firebase y Firestore
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  
+  // Cargar usuarios desde Firestore
+  async function loadUsers() {
+    try {
+      // Referencia a la colección "users"
+      const usersRef = collection(db, "users");
+      const usersSnapshot = await getDocs(usersRef);
+
+      console.log('Usuarios obtenidos:', usersSnapshot.docs.length); // Verificar la cantidad de documentos
+      
+      // Selección de tablas en el DOM (correcto)
+      const tbodyBuyers = document.getElementById('buyers');
+      const tbodyDistributors = document.getElementById('distributors');
+      const activeBuyersElement = document.getElementById('active-buyers');
+      const activeCollaboratorsElement = document.getElementById('active-collaborators');
+  
+      // Limpia el contenido actual de las tablas
+      tbodyBuyers.innerHTML = '';
+      tbodyDistributors.innerHTML = '';
+  
+      // Variables para contar los usuarios activos
+      let activeBuyersCount = 0;
+      let activeCollaboratorsCount = 0;
+  
+      // Verifica si hay documentos en Firestore
+      if (usersSnapshot.empty) {
+        console.log('No hay usuarios en la colección.');
+        return;  // Si no hay datos, terminamos aquí
+      }
+
+      // Itera sobre los documentos de la colección
+      usersSnapshot.forEach(doc => {
+        const user = doc.data();
+        console.log('Usuario cargado:', user); // Verificar los datos de cada usuario
+  
+        // Verifica el rol del usuario y añade la fila a la tabla correspondiente
+        if (user.role === "buyer") {
+          activeBuyersCount++;
+          const row = `<tr>
+            <td>${user.name || 'N/A'}</td>
+            <td>${user.email || 'N/A'}</td>
+            <td>${user.phone || 'N/A'}</td>
+            <td><button class="button-primary" data-id="${doc.id}">Editar</button></td>
+          </tr>`;
+          tbodyBuyers.innerHTML += row;
+        } else if (user.role === "distributor") {
+          activeCollaboratorsCount++;
+          const row = `<tr>
+            <td>${user.name || 'N/A'}</td>
+            <td>${user.company || 'N/A'}</td>
+            <td>${user.email || 'N/A'}</td>
+            <td>${user.phone || 'N/A'}</td>
+            <td><button class="button-primary" data-id="${doc.id}">Editar</button></td>
+          </tr>`;
+          tbodyDistributors.innerHTML += row;
         }
-      } else {
-        alert("No estás autenticado. Redirigiendo...");
-        window.location.href = "auth2.html";
-      }
-    });
-  </script>
-  <script>
-    // Ejemplo de datos iniciales
-    const weeklyEarnings = 5000;
-    const monthlyEarnings = 20000;
-    const annualEarnings = 240000;
-
-    document.getElementById('weekly-earnings').textContent = `€${weeklyEarnings}`;
-    document.getElementById('monthly-earnings').textContent = `€${monthlyEarnings}`;
-    document.getElementById('annual-earnings').textContent = `€${annualEarnings}`;
-
-    // Inicialización de gráficos
-    const ctx1 = document.getElementById('sales-chart').getContext('2d');
-    const ctx2 = document.getElementById('monthly-sales-chart').getContext('2d');
-
-    const salesChart = new Chart(ctx1, {
-      type: 'line',
-      data: {
-        labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
-        datasets: [{
-          label: 'Ingresos Semanales (€)',
-          data: [500, 700, 800, 1000, 900, 1100, 1200],
-          borderColor: 'rgba(0, 255, 0, 1)',
-          backgroundColor: 'rgba(0, 255, 0, 0.2)',
-          fill: true,
-        }]
-      }
-    });
-
-    const monthlySalesChart = new Chart(ctx2, {
-      type: 'bar',
-      data: {
-        labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
-        datasets: [{
-          label: 'Ingresos Mensuales (€)',data: [12000, 15000, 18000, 20000, 16000, 19000],
-          backgroundColor: 'rgba(0, 255, 0, 0.7)',
-          borderColor: 'rgba(0, 255, 0, 1)',
-          borderWidth: 1,
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
-
-    // Actualización de ganancias de fotógrafos
-    const updateButtons = document.querySelectorAll('.update-photographer');
-
-    updateButtons.forEach(button => {
-      button.addEventListener('click', (e) => {
-        const row = e.target.closest('tr');
-        const input = row.querySelector('.profit-input');
-        const profit = input.value;
-        console.log(`Actualizando ganancia para fotógrafo: ${profit}%`);
-        // Lógica para actualizar la ganancia del fotógrafo en la base de datos (simulado)
-        alert(`Ganancia del fotógrafo actualizada a ${profit}%`);
       });
-    });
 
-    // Actualización de estadísticas en función de los datos dinámicos (simulados)
-    // Puedes agregar lógicas adicionales para hacer cálculos reales de ganancias y estadísticas
-    // Estos valores pueden ser dinámicos dependiendo de tus necesidades (de una base de datos, API, etc.)
-    function updateMetrics() {
-      // Lógica para actualizar los ingresos semanales, mensuales y anuales
-      // Se pueden conectar a una API para obtener datos reales
-      const updatedWeekly = 5500;  // Simulado
-      const updatedMonthly = 21000; // Simulado
-      const updatedAnnual = 250000; // Simulado
+      // Actualiza los contadores en el DOM
+      activeBuyersElement.textContent = activeBuyersCount;
+      activeCollaboratorsElement.textContent = activeCollaboratorsCount;
 
-      document.getElementById('weekly-earnings').textContent = `€${updatedWeekly}`;
-      document.getElementById('monthly-earnings').textContent = `€${updatedMonthly}`;
-      document.getElementById('annual-earnings').textContent = `€${updatedAnnual}`;
+      console.log("Usuarios cargados exitosamente.");
+    } catch (error) {
+      console.error("Error al cargar los usuarios:", error);
     }
+  }
+  
+  // Llama a la función para cargar los usuarios al iniciar la página
+  loadUsers();
+</script>
 
-    // Actualizar métricas cada 10 segundos (simulado)
-    setInterval(updateMetrics, 10000);
-      // Código JavaScript para datos dinámicos
-      const collaborators = [
-      { name: "Colaborador 1", portfolio: "link", photos: 20, videos: 5 },
-      { name: "Colaborador 2", portfolio: "link", photos: 15, videos: 10 }
-    ];
-
-    function loadCollaborators() {
-      const tbody = document.getElementById('collaborator-list');
-      tbody.innerHTML = '';
-      collaborators.forEach(col => {
-        const row = `<tr>
-          <td>${col.name}</td>
-          <td><a href="${col.portfolio}">Ver Portafolio</a></td>
-          <td>${col.photos}</td>
-          <td>${col.videos}</td>
-          <td><button class="button-primary">Actualizar</button></td>
-        </tr>`;
-        tbody.innerHTML += row;
-      });
-    }
-
-    // Cargar datos iniciales
-    loadCollaborators();
-  </script>
 </body>
 </html>

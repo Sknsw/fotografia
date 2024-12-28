@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel del Fotógrafo</title>
+  <title>Panel del Fotógrafo Profesional</title>
   <link rel="stylesheet" href="styles.css">
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js";
@@ -11,12 +11,12 @@
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-storage.js";
 
     const firebaseConfig = {
-      apiKey: "TU_API_KEY",
-      authDomain: "TU_AUTH_DOMAIN",
-      projectId: "TU_PROJECT_ID",
-      storageBucket: "TU_STORAGE_BUCKET",
-      messagingSenderId: "TU_MESSAGING_SENDER_ID",
-      appId: "TU_APP_ID"
+      apiKey: "your_api_key_here",
+      authDomain: "your_project.firebaseapp.com",
+      projectId: "your_project_id",
+      storageBucket: "your_project.appspot.com",
+      messagingSenderId: "your_messaging_sender_id",
+      appId: "your_app_id"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -76,6 +76,18 @@
     }
 
     fetchUploadedMedia();
+
+    // Función para cargar estadísticas (dummy data por ahora)
+    function loadStatistics() {
+      document.getElementById('statistics').innerHTML = `
+        <p>Fotos subidas: 120</p>
+        <p>Ventas: 50</p>
+        <p>Vistas totales: 2,300</p>
+        <p>Ganancias: $500 USD</p>
+      `;
+    }
+
+    loadStatistics();
 
     // Función para actualizar perfil
     document.getElementById('profile-form').addEventListener('submit', async (e) => {
@@ -143,7 +155,7 @@
     main {
       padding: 2rem;
     }
-    #upload-section, #uploaded-media, #profile-section {
+    #upload-section, #uploaded-media, #profile-section, #statistics-section {
       background: #333;
       padding: 2rem;
       border-radius: 8px;
@@ -189,7 +201,7 @@
 </head>
 <body>
   <header>
-    <h1>Panel del Fotógrafo</h1>
+    <h1>Panel del Fotógrafo Profesional</h1>
     <nav>
       <a href="index.html">Inicio</a>
       <a href="photographer.html">Fotógrafo</a>
@@ -224,28 +236,15 @@
       <h2>Contenido Subido</h2>
       <div id="media-list"></div>
     </section>
+
+    <section id="statistics-section">
+      <h2>Estadísticas</h2>
+      <div id="statistics"></div>
+    </section>
   </main>
 
   <footer>
     <p>&copy; 2024 Panel del Fotógrafo</p>
   </footer>
-  <script type="module">
-    import { auth, db } from "./scripts/firebase-config.js";
-    import { getDoc, doc } from "firebase/firestore";
-
-    // Verificar que el usuario sea administrador
-    auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists() && userDoc.data().role !== "photographer") {
-          alert("Acceso denegado. Redirigiendo...");
-          window.location.href = "index.html";
-        }
-      } else {
-        alert("No estás autenticado. Redirigiendo...");
-        window.location.href = "auth2.html";
-      }
-    });
-  </script>
 </body>
 </html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portafolio del Distribuidor</title>
+  <style>
+    :root {
+      --bg-color: #000;
+      --text-color: #fff;
+      --accent-color: #00c853;
+      --hover-color: rgba(255, 255, 255, 0.1);
+      --border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #000, #1a1a1a);
+      margin: 0;
+      padding: 0;
+      color: var(--text-color);
+      line-height: 1.8;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: var(--bg-color);
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    header nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 15px;
+    }
+
+    nav ul li {
+      margin: 0;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: var(--text-color);
+      padding: 5px 10px;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    nav ul li a:hover {
+      background: var(--hover-color);
+      border-radius: 5px;
+      color: var(--accent-color);
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--accent-color);
+      margin: 20px 0;
+      font-size: 2rem;
+    }
+
+    #portfolio-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .portfolio-item {
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      text-align: center;
+      width: 250px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .portfolio-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.8);
+    }
+
+    .portfolio-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .portfolio-item h4 {
+      margin: 10px 0 5px;
+      font-size: 1.25rem;
+      color: var(--text-color);
+    }
+
+    .portfolio-item p {
+      margin: 5px 15px 15px;
+      font-size: 0.9rem;
+      color: var(--text-color);
+    }
+
+    @media (max-width: 768px) {
+      .portfolio-item {
+        width: 100%;
+        max-width: 320px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <div>
+        <a href="#" style="font-size: 1.2rem; color: var(--accent-color); text-decoration: none;">Distribuidor</a>
+      </div>
+      <ul>
+        <li><a href="#portfolio-container">Portafolio</a></li>
+        <li><a href="/contact.html">Contacto</a></li>
+        <li><a href="/about.html">Acerca de</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <h1>Portafolio del Distribuidor</h1>
+  <div id="portfolio-container">
+    <!-- Los elementos del portafolio se agregarán aquí dinámicamente -->
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
+    import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB6QY7k3j0PRoWMxSNVk-2nI7sTqReGvlc",
+      authDomain: "scortsprincess.firebaseapp.com",
+      projectId: "scortsprincess",
+      storageBucket: "scortsprincess.appspot.com",
+      messagingSenderId: "599517218900",
+      appId: "1:599517218900:web:c51b2ec00e8c7b1fcd45c1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    async function fetchPortfolio() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const distributorId = urlParams.get('distributorId');
+
+      try {
+        const portfolioDocRef = doc(db, "portfolios", distributorId);
+        const portfolioDoc = await getDoc(portfolioDocRef);
+
+        if (portfolioDoc.exists()) {
+          const portfolioData = portfolioDoc.data();
+          const portfolioItems = portfolioData.portfolioItems;
+          const portfolioContainer = document.getElementById("portfolio-container");
+
+          portfolioItems.forEach(async (item) => {
+            const itemCard = document.createElement("div");
+            itemCard.classList.add("portfolio-item");
+
+            const storageRef = ref(storage, item.filePath);
+            const fileUrl = await getDownloadURL(storageRef);
+
+            itemCard.innerHTML = `
+              <img src="${fileUrl}" alt="${item.name}" class="portfolio-image">
+              <h4>${item.name}</h4>
+              <p>${item.description}</p>
+            `;
+            portfolioContainer.appendChild(itemCard);
+          });
+        } else {
+          alert("Este distribuidor no tiene un portafolio disponible.");
+        }
+      } catch (error) {
+        console.error("Error al obtener el portafolio: ", error);
+      }
+    }
+
+    window.onload = fetchPortfolio;
+  </script>
+</body>
+</html>
+
+

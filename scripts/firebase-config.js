@@ -5,12 +5,12 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth
 import { getStorage } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBIGj7-qtDP4pVDXpJ2ckmTMhO5x2KQVeA",
-  authDomain: "scort-glamur.firebaseapp.com",
-  projectId: "scort-glamur",
-  storageBucket: "scort-glamur.appspot.com",
-  messagingSenderId: "971144857909",
-  appId: "1:971144857909:web:353b6cb5590bc261c9647c"
+  apiKey: "AIzaSyB6QY7k3j0PRoWMxSNVk-2nI7sTqReGvlc",
+  authDomain: "scortsprincess.firebaseapp.com",
+  projectId: "scortsprincess",
+  storageBucket: "scortsprincess.appspot.com",
+  messagingSenderId: "599517218900",
+  appId: "1:599517218900:web:c51b2ec00e8c7b1fcd45c1"
 };
 
 export const app = initializeApp(firebaseConfig);

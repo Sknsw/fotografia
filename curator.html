@@ -76,6 +76,27 @@
       max-width: 700px;
       margin: 0 auto;
     }
+
+    .file-item {
+      background: #333;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .file-actions button {
+      margin: 5px;
+      padding: 8px;
+      border: 1px solid #0f0;
+      border-radius: 5px;
+      background-color: #000;
+      color: #0f0;
+    }
+
+    .file-actions button:hover {
+      background-color: #0f0;
+      color: #000;
+    }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
@@ -112,72 +133,116 @@
     <h3>📊 Estadísticas de Actividad</h3>
     <canvas id="statistics-chart"></canvas>
   </section>
-  <script type="module">
-    import { auth, db } from "./scripts/firebase-config.js";
-    import { getDoc, doc } from "firebase/firestore";
 
-    // Verificar que el usuario sea administrador
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-auth.js";
+    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB6QY7k3j0PRoWMxSNVk-2nI7sTqReGvlc",
+      authDomain: "scortsprincess.firebaseapp.com",
+      projectId: "scortsprincess",
+      storageBucket: "scortsprincess.appspot.com",
+      messagingSenderId: "599517218900",
+      appId: "1:599517218900:web:c51b2ec00e8c7b1fcd45c1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    // Verificar que el usuario sea un curador
     auth.onAuthStateChanged(async (user) => {
       if (user) {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists() && userDoc.data().role !== "curator") {
-          alert("Acceso denegado. Redirigiendo...");
-          window.location.href = "index.html";
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists() && userDoc.data().role !== "curator") {
+            alert("Acceso denegado. Redirigiendo...");
+            window.location.href = "index.html";
+          } else {
+            // Cargar el perfil
+            loadCuratorProfile(user.uid);
+            loadPendingFiles();
+          }
+        } catch (error) {
+          console.error("Error al verificar el rol del curador:", error);
         }
       } else {
         alert("No estás autenticado. Redirigiendo...");
         window.location.href = "auth2.html";
       }
     });
-  </script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "TU_API_KEY",
-      authDomain: "TU_DOMINIO.firebaseapp.com",
-      projectId: "TU_PROJECT_ID",
-      databaseURL: "TU_DATABASE_URL",
-      storageBucket: "TU_STORAGE_BUCKET.appspot.com",
-      messagingSenderId: "TU_MESSAGING_ID",
-      appId: "TU_APP_ID"
-    };
 
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const database = firebase.database();
+    // Función para cargar el perfil del curador
+    async function loadCuratorProfile(userId) {
+      try {
+        const userSnapshot = await get(child(ref(database), `curators/${userId}`));
+        const data = userSnapshot.val();
+        document.getElementById("curator-name").textContent = data.name || "No disponible";
+        document.getElementById("curator-email").textContent = data.email || "No disponible";
+        document.getElementById("curator-registered").textContent = data.registered || "Desconocida";
+        document.getElementById("curator-tasks").textContent = data.tasksCompleted || "0";
+        document.getElementById("curator-reviews").textContent = data.statistics.reviews || "0";
+        document.getElementById("curator-approvals").textContent = data.statistics.approvals || "0";
 
-    const curatorName = document.getElementById("curator-name");
-    const curatorEmail = document.getElementById("curator-email");
-    const curatorRegistered = document.getElementById("curator-registered");
-    const curatorTasks = document.getElementById("curator-tasks");
-    const curatorReviews = document.getElementById("curator-reviews");
-    const curatorApprovals = document.getElementById("curator-approvals");
-
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        curatorEmail.textContent = user.email;
-        database.ref(`curators/${user.uid}`).once('value').then(snapshot => {
-          const data = snapshot.val();
-          curatorName.textContent = data.name || "No disponible";
-          curatorRegistered.textContent = data.registered || "Desconocida";
-          curatorTasks.textContent = data.tasksCompleted || "0";
-          const statistics = data.statistics || { reviews: 0, approvals: 0 };
-          curatorReviews.textContent = statistics.reviews || "0";
-          curatorApprovals.textContent = statistics.approvals || "0";
-
-          // Crear la gráfica
-          createChart(statistics.reviews, statistics.approvals);
-        });
-      } else {
-        window.location.href = "/login.html";
+        // Crear la gráfica
+        createChart(data.statistics.reviews, data.statistics.approvals);
+      } catch (error) {
+        console.error("Error al cargar los datos del curador:", error);
       }
-    });
+    }
 
-    function logout() {
-      auth.signOut().then(() => {
-        window.location.href = "/login.html";
+    // Función para cargar los archivos pendientes de revisión
+    async function loadPendingFiles() {
+      const fileList = document.getElementById("file-list");
+      const filesRef = collection(db, "uploads");
+      const q = query(filesRef, where("status", "==", "pending"));
+      const querySnapshot = await getDocs(q);
+
+      fileList.innerHTML = ""; // Limpiar la lista
+
+      querySnapshot.forEach((doc) => {
+        const file = doc.data();
+        const fileItem = document.createElement("div");
+        fileItem.classList.add("file-item");
+        fileItem.innerHTML = `
+          <p><strong>${file.name}</strong></p>
+          <p>${file.description}</p>
+          <div class="file-actions">
+            <button onclick="approveFile('${doc.id}')">Aprobar</button>
+            <button onclick="rejectFile('${doc.id}')">Rechazar</button>
+          </div>
+        `;
+        fileList.appendChild(fileItem);
       });
     }
 
+    // Función para aprobar un archivo
+    async function approveFile(fileId) {
+      try {
+        await setDoc(doc(db, "uploads", fileId), { status: "approved" }, { merge: true });
+        alert("Archivo aprobado");
+        loadPendingFiles(); // Recargar la lista de archivos
+      } catch (error) {
+        console.error("Error al aprobar el archivo:", error);
+      }
+    }
+
+    // Función para rechazar un archivo
+    async function rejectFile(fileId) {
+      try {
+        await setDoc(doc(db, "uploads", fileId), { status: "rejected" }, { merge: true });
+        alert("Archivo rechazado");
+        loadPendingFiles(); // Recargar la lista de archivos
+      } catch (error) {
+        console.error("Error al rechazar el archivo:", error);
+      }
+    }
+
+    // Función para crear la gráfica de estadísticas
     function createChart(reviews, approvals) {
       const ctx = document.getElementById('statistics-chart').getContext('2d');
       new Chart(ctx, {
@@ -205,6 +270,13 @@
         }
       });
     }
+
+    // Función de cierre de sesión
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = "login.html";
+      });
+    }
   </script>
 </body>
-</html> 
+</html>

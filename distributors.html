@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Distribuidores</title>
+  <style>
+    /* --- General Styles --- */
+    :root {
+      --bg-color: #000;
+      --text-color: #fff;
+      --accent-color: #00c853;
+      --hover-color: rgba(255, 255, 255, 0.1);
+      --border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Header Styles */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 10px 20px;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    }
+
+    header h1 {
+      color: var(--accent-color);
+      font-size: 1.5rem;
+      margin: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-links a {
+      font-size: 0.9rem;
+      color: var(--text-color);
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent-color);
+    }
+
+    .menu-btn {
+      font-size: 1.5rem;
+      color: var(--text-color);
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: none; /* Muestra en móviles */
+    }
+
+    /* Responsive Menu for Mobile */
+    .menu-btn.active + .nav-links {
+      display: flex;
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    /* Distributor List */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #000, #1a1a1a);
+      margin: 0;
+      padding: 0;
+      color: var(--text-color);
+      overflow-x: hidden;
+      line-height: 1.8;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--accent-color);
+      margin: 80px 0 20px;
+      font-size: 2rem;
+    }
+
+    #distributor-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .distributor-card {
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      text-align: center;
+      width: 250px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .distributor-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.8);
+    }
+
+    .distributor-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .distributor-card h3 {
+      margin: 15px 0 5px;
+      font-size: 1.25rem;
+      color: var(--text-color);
+    }
+
+    .distributor-card p {
+      margin: 5px 0;
+      font-size: 0.9rem;
+      color: var(--text-color);
+    }
+
+    .distributor-card button {
+      background-color: var(--accent-color);
+      color: var(--text-color);
+      border: none;
+      border-radius: 5px;
+      padding: 10px 15px;
+      margin: 15px 0;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background-color 0.2s ease;
+    }
+
+    .distributor-card button:hover {
+      background-color: var(--hover-color);
+    }
+
+    @media (max-width: 768px) {
+      .menu-btn {
+        display: block;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .distributor-card {
+        width: 100%;
+        max-width: 320px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header id="main-header">
+    <h1>EpicStock</h1>
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+    <nav class="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="photographer.html">Fotógrafos</a>
+      <a href="auth2.html">Iniciar Sesión</a>
+    </nav>
+  </header>
+
+  <h1>Lista de Distribuidores</h1>
+  <div id="distributor-list">
+    <!-- Los distribuidores se agregarán aquí dinámicamente -->
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB6QY7k3j0PRoWMxSNVk-2nI7sTqReGvlc",
+      authDomain: "scortsprincess.firebaseapp.com",
+      projectId: "scortsprincess",
+      storageBucket: "scortsprincess.appspot.com",
+      messagingSenderId: "599517218900",
+      appId: "1:599517218900:web:c51b2ec00e8c7b1fcd45c1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function fetchDistributors() {
+      const distributorListElement = document.getElementById("distributor-list");
+
+      try {
+        const querySnapshot = await getDocs(collection(db, "users"));
+
+        querySnapshot.forEach(async (userDoc) => {
+          const userData = userDoc.data();
+
+          if (userData.role === "distributor") {
+            const distributorCard = document.createElement("div");
+            distributorCard.classList.add("distributor-card");
+
+            const portfolioDocRef = doc(db, "portfolios", userDoc.id);
+            const portfolioDoc = await getDoc(portfolioDocRef);
+
+            if (portfolioDoc.exists()) {
+              distributorCard.innerHTML = `
+                <img src="${userData.profileImageUrl || 'https://via.placeholder.com/200'}" alt="${userData.name}" class="distributor-image">
+                <h3>${userData.name}</h3>
+                <p>${userData.country}</p>
+                <button onclick="viewPortfolio('${userDoc.id}')">Ver Portafolio</button>
+              `;
+              distributorListElement.appendChild(distributorCard);
+            }
+          }
+        });
+      } catch (error) {
+        console.error("Error al obtener distribuidores: ", error);
+      }
+    }
+
+    function viewPortfolio(distributorId) {
+      window.location.href = `portfolio.html?distributorId=${distributorId}`;
+    }
+
+    function toggleMenu() {
+      const menuBtn = document.querySelector('.menu-btn');
+      const navLinks = document.querySelector('.nav-links');
+      menuBtn.classList.toggle('active');
+      navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    window.viewPortfolio = viewPortfolio;
+    window.onload = fetchDistributors;
+  </script>
+</body>
+</html>
+
+
+
+
+

@@ -1,7 +1,5 @@
 // auth.js
-import { auth, db } from "./firebase-config.js";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+
 
 // Función para registrar un usuario
 export const registerUser = async (email, password, role) => {
